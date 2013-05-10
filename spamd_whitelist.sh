@@ -2,7 +2,7 @@
 # Sample implementation script to dump SPF info and add to PF tables
 FILE=nospamd
 
-mv $FILE $FILE.old
+[ -f "$FILE" ] && mv $FILE $FILE.old
 touch $FILE
 
 ### This first list are for domains who have SPF records.
@@ -23,7 +23,7 @@ for domain in \
 	rackspace.com \
 	startcom.org \
 	github.com \
-do
+;do
 	echo "# $domain (SPF)" >> $FILE
 	spf_dump.py $domain >> $FILE
 done
