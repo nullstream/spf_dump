@@ -3,6 +3,9 @@
 # Parser written relative to: http://www.openspf.org/SPF_Record_Syntax
 import os,sys,re
 
+# Define maximum recursion depth for record parsing.
+MAX_DEPTH=5
+
 def handle_a(domain,debug=False):
     result = []
     for a in (dig(domain,"A",debug)).split("\n"):
@@ -30,7 +33,7 @@ def dig(domain,type,debug=False):
     if debug: print "dig [%s]"%record[:-1]
     return record[:-1]
 
-def parse(domain,debug=False):
+def parse(domain,depth=0,debug=False):
     ranges = []
     record = dig(domain,"TXT",debug)
     for token in record.split():
@@ -43,8 +46,11 @@ def parse(domain,debug=False):
                 ranges.append(value)
                 if debug: print "Found ip4 [%s]"%value
             elif "include" == key or "redirect" == key:
-                ranges.extend(parse(value,debug))
-                if debug: print "Recursed on [%s]"%value
+                if depth < MAX_DEPTH:
+                    if debug: print "Recursing on [%s], recursive depth [%i]"%(value,depth+1)
+                    ranges.extend(parse(value,depth+1,debug))
+                else:
+                    if debug: print "Max recursive depth exceeded on [%s], recursive depth [%i]"%(value,depth+1)
 	    elif "a" == key or "+a" == key:
                 if debug: print "Found Dyad A [%s]"%value
                 ranges.extend(handle_a(value,debug))
@@ -63,7 +69,7 @@ def parse(domain,debug=False):
 		else:
                 	if debug: print "Monad Unknown [%s]"%token
 
-    return ranges
+    return list(set(ranges))
 
 for i in parse(sys.argv[1]):
     print i
