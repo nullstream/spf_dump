@@ -37,7 +37,7 @@ def parse(domain,depth=0,debug=False):
     ranges = []
     record = dig(domain,"TXT",debug)
     for token in record.split():
-        token = token.split(':')
+        token = token.split(':',1)
         if len(token) == 2:
             key = token[0].lower()
             value = token[1].rstrip('\"')
@@ -45,6 +45,9 @@ def parse(domain,depth=0,debug=False):
             if "ip4" == key:
                 ranges.append(value)
                 if debug: print "Found ip4 [%s]"%value
+            elif "ip6" == key:
+                ranges.append(value)
+                if debug: print "Found ip6 [%s]"%value
             elif "include" == key or "redirect" == key:
                 if depth < MAX_DEPTH:
                     if debug: print "Recursing on [%s], recursive depth [%i]"%(value,depth+1)
