@@ -74,5 +74,5 @@ def parse(domain,depth=0,debug=False):
 
     return list(set(ranges))
 
-for i in parse(sys.argv[1],debug=True):
+for i in parse(sys.argv[1]):
     print i
