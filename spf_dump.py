@@ -46,7 +46,12 @@ def parse(domain,depth=0,debug=False):
                 ranges.append(value)
                 if debug: print "Found ip4 [%s]"%value
             elif "ip6" == key:
-                ranges.append(value)
+                if '-p' in sys.argv:
+                    # mangle for postfix $mynetworks
+                    splitvalue = value.split('/')
+                    ranges.append('[{0}]/{1}'.format(splitvalue[0],splitvalue[1]))
+                else:
+                    ranges.append(value)
                 if debug: print "Found ip6 [%s]"%value
             elif "include" == key or "redirect" == key:
                 if depth < MAX_DEPTH:
@@ -74,5 +79,12 @@ def parse(domain,depth=0,debug=False):
 
     return list(set(ranges))
 
-for i in parse(sys.argv[1]):
-    print i
+if __name__ == '__main__':
+    parsed = []
+    for arg in sys.argv:
+        if not arg.startswith('-'):
+            parsed.extend(parse(arg,debug=False if '-v' not in sys.argv else True))
+
+    for r in set(parsed):
+        print r
+   
