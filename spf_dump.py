@@ -81,7 +81,7 @@ def parse(domain,depth=0,debug=False):
 
 if __name__ == '__main__':
     parsed = []
-    for arg in sys.argv:
+    for arg in sys.argv[1:]:
         if not arg.startswith('-'):
             parsed.extend(parse(arg,debug=False if '-v' not in sys.argv else True))
 
